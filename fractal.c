@@ -6,8 +6,7 @@
 
 void calc_fractal(int width, int height)
 {
-    /* first, find the number of iterations to escape mandelbrot set
-       for each pixel */
+    /* find the number of iterations to escape mandelbrot set */
     printf("Starting calculations\n");
 
     /* allocate memory for iteration population count used for normalization */
@@ -21,7 +20,7 @@ void calc_fractal(int width, int height)
     /* zero memory */
     memset(pop_cnt, 0, sizeof(int) * MAX_ITERATIONS + 1);
 
-    /* number of pixel included in count */ 
+    /* number of pixels inside the set that are included in the pop. count */ 
     int pixels = 0;
 
     /* allocate memory for iteration count for each pixel */
@@ -32,10 +31,10 @@ void calc_fractal(int width, int height)
         exit(1);
     }
 
-    /* calculate iterations to escape set for each pixel */
+    /* calculate iterations for each pixel */
     for (int px = 0; px < width; ++px) {
         for (int py = 0; py < height; ++py) {
-            /* find normalized x and y coordinate values */
+            /* normalized x and y coordinate values */
             double x = (double)px / width * 3.0 - 2.0;
             double y = (double)py / height * 2.0 - 1.0;
 
@@ -44,16 +43,16 @@ void calc_fractal(int width, int height)
                 = iter_cnt[px * height + py] 
                 = calc_iterations(x, y);
 
-            /* pixels outside the set are not included in the count */
+            /* pixels outside the set are not included in the pop. count */
             if (iterations < MAX_ITERATIONS) {
 
                 /* sanity check array bounds */
                 assert(0 <= iterations && iterations < MAX_ITERATIONS);
                 
-                /* increment population for that iteration count */
+                /* increment number of pixels with given iteration count */
                 pop_cnt[iterations]++;
 
-                /* increment number of pixels in total population */
+                /* increment total number of pixels in pop. count */
                 pixels++;
             }
         }
@@ -77,7 +76,7 @@ void calc_fractal(int width, int height)
             /* iterations for current pixel */ 
             int iter = iter_cnt[px * height + py];
 
-            /* find normalized iteration value */
+            /* normalized iteration value */
             double norm_iter;
 
             if (iter == MAX_ITERATIONS) {
