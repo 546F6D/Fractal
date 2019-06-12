@@ -224,6 +224,7 @@ pixel_t calc_rgb(double val)
     /* struct for holding RGB values */
     pixel_t px = { 0, 0, 0 };
 
+	/* select color based on normalized value */
 	int step = (int)((1.0 - val) * 6.0);
 	switch (step) {
 	case 0:
@@ -268,20 +269,31 @@ pixel_t calc_rgb(double val)
 
 pixel_t anti_alias(calc_t calc) 
 {
+	/* set pixels not in the set to black */
 	if (calc.iterations == MAX_ITERATIONS) {
 		pixel_t pixel = { 0, 0, 0 };
 		return pixel;
 	}
 	
-	double A 
+	/* scalar value for generating floating point iteration 
+	   value from fixed point iteration value to improve 
+	   image coloring by reducing aliasing (color bands) */ 
+	double scalar
 		= -1.0 
 		* log(log(sqrt(pow(calc.x, 2.0) + pow(calc.y, 2.0)))) 
 		/ log(2.0);
 
-	double B = (calc.next_iter - calc.prev_iter) / 2;
-	double C = A * B + calc.norm_iter;
+	/* calculate average distance between next and previous
+       normalized iteration buckets */
+	double avg_dist = (calc.next_iter - calc.prev_iter) / 2;
 
-	return calc_rgb(C);
+	/* apply scalar to average distance and add to the 
+	   normalized iteration value to generate interpolated
+       iteration value */
+	double iter = scalar * avg_dist + calc.norm_iter;
+
+	/* calculate RGB channels */
+	return calc_rgb(iter);
 }
 
 
