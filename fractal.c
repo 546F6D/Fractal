@@ -219,24 +219,30 @@ pixel_t calc_rgb(double val)
     }
 
     else {
-		int step = (int)(val * 3.0);
+		int step = (int)(val * 4.0);
 		switch (step) {
+		case 3:
+			px.r = 0;
+			px.g = (unsigned char)(180.0 * fmod(val * 4.0, 1.0));
+			px.b = 0;
+			break;
+
 		case 2:
 			px.r = 0;
+			px.g = (unsigned char)(16.0 + 64.0 * fmod(val * 4.0, 1.0));
 			px.b = 0;
-			px.g = (unsigned char)(128.0 * fmod(val * 3.0, 1.0));
 			break;
 
 		case 1:
-			px.r = 128;
-			px.g = 0;
-			px.b = (unsigned char)(255.0 * fmod(val * 3.0, 1.0));
+			px.r = 0;
+			px.g = (unsigned char)(32.0 * fmod(val * 4.0, 1.0));
+			px.b = 0; 
 			break;
-
+		
 		case 0:
-			px.r = (unsigned char)(128.0 * (1.0 - fmod(val * 3.0, 1.0)));
-			px.g = 0;
-			px.b = (unsigned char)(255.0 * (1.0 - fmod(val * 3.0, 1.0)));
+			px.r = 0;
+			px.g = 0; 
+			px.b = 0;
 			break;
 		}
     }
