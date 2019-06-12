@@ -14,7 +14,13 @@ typedef struct Pixel {
 /* calculates and writes pixel values to file */
 void calc_fractal(int width, int height);
 
-/* calculates color for a pixel given normalized coordinates */
-pixel_t calc_pixel(double x0, double y0);
+/* calculates number of iterations for pixel to escape mandelbrot set */ 
+int calc_iterations(double x0, double y0);
+
+/* calculates map for translating iteration count to a normalized value */ 
+double *calc_map(int *pop_cnt, int pixels);
+
+/* translate normalized value to RGB */
+pixel_t calc_rgb(double norm_iter);
 
 

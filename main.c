@@ -18,6 +18,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Invalid width or height\n");
         return 1;
     }
+    
+    printf("Image size: %d x %d\n", width, height); 
 
     /* calculate pixel values and write to file */
     calc_fractal(width, height);
