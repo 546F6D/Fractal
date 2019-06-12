@@ -15,7 +15,7 @@ typedef struct Pixel {
 typedef struct Calculation {
 	int iterations;
 	double x, y;
-	double norm_iter, next_iter;
+	double norm_iter, next_iter, prev_iter;
 } calc_t;
 
 /* calculates and writes pixel values to file */
@@ -33,6 +33,4 @@ pixel_t calc_rgb(double norm_iter);
 /* find RGB and reduce aliasing for pixel */
 pixel_t anti_alias(calc_t calc);
 
-/* linear interpolate two RGB values */
-unsigned char linear_inter(unsigned char v0, unsigned char v1, double t);
 

@@ -108,11 +108,17 @@ void calc_fractal(int width, int height)
 			/* store normalized iterations */
 			calc->norm_iter = norm_iter;
 
-			/* store next iteration step */
-			calc->next_iter 
-				= iter + 1 < MAX_ITERATIONS 
-				? map[iter + 1] 
-				: calc->norm_iter;	
+			/* store prev/next iteration step */
+			calc->prev_iter 
+				= iter - 1 >= 0 
+				? map[iter - 1] 
+				: 0.0;	
+
+			calc->next_iter
+				= iter + 1 < MAX_ITERATIONS
+				? map[iter + 1]
+				: 1.0;
+			
 
 			/* calculate RGB value */
 			pixel_t pixel = anti_alias(*calc);
@@ -190,7 +196,7 @@ calc_t calc_pixel(double x0, double y0)
     double y = 0.0;
     int iteration = 0;
     int max_iteration = MAX_ITERATIONS;
-    while (x*x + y*y <= 2*2 && iteration < max_iteration) {
+    while (x*x + y*y <= 4.0 && iteration < max_iteration) {
         double xtemp = x*x - y*y + x0;
         y = 2.0*x*y + y0;
         x = xtemp;
@@ -207,94 +213,75 @@ calc_t calc_pixel(double x0, double y0)
 
 pixel_t calc_rgb(double val)
 {
-	/* sanity check */
-	assert(0.0 <= val && val <= 1.0);
+	/* ensure val is between 0.0 and 1.0
+	if (val < 0.0) {
+		val = 0.0;
+	}
+	else if (val > 1.0) {
+		val = 1.0;
+	}
 
     /* struct for holding RGB values */
     pixel_t px = { 0, 0, 0 };
 
-    /* color pixels with value of 1.0 black */
-    if (val == 1.0) {
-        px.r = px.g = px.b = 0;
-    }
-
-    else {
-		int step = (int)(val * 4.0);
-		switch (step) {
-		case 3:
-			px.r = 0;
-			px.g = (unsigned char)(180.0 * fmod(val * 4.0, 1.0));
-			px.b = 0;
-			break;
-
-		case 2:
-			px.r = 0;
-			px.g = (unsigned char)(16.0 + 64.0 * fmod(val * 4.0, 1.0));
-			px.b = 0;
-			break;
-
-		case 1:
-			px.r = 0;
-			px.g = (unsigned char)(32.0 * fmod(val * 4.0, 1.0));
-			px.b = 0; 
-			break;
+	int step = (int)((1.0 - val) * 6.0);
+	switch (step) {
+	case 0:
+		px.r = (unsigned char)(200.0 + 20.0 * fmod(val * 6.0, 1.0));
+		px.g = (unsigned char)(40.0 + 180.0 * fmod(val * 6.0, 1.0));
+		px.b = (unsigned char)(100.0 + 10.0 * fmod(val * 6.0, 1.0));
+		break;
 		
-		case 0:
-			px.r = 0;
-			px.g = 0; 
-			px.b = 0;
-			break;
-		}
-    }
+	case 1:
+		px.r = (unsigned char)(80.0 + 120.0 * fmod(val * 6.0, 1.0));
+		px.g = (unsigned char)(25.0 + 15.0 * fmod(val * 6.0, 1.0));
+		px.b = (unsigned char)(70.0 + 30.0 * fmod(val * 6.0, 1.0));
+		break;
+
+	case 2:
+		px.r = (unsigned char)(25.0 + 55.0 * fmod(val * 6.0, 1.0));
+		px.g = 25;
+		px.b = 70;
+		break;
+	
+	case 3:
+		px.r = (unsigned char)(15.0 + 10.0 * fmod(val * 6.0, 1.0));
+		px.g = (unsigned char)(15.0 + 10.0 * fmod(val * 6.0, 1.0));
+		px.b = (unsigned char)(65.0 + 5.0 * fmod(val * 6.0, 1.0));
+		break;
+	
+	case 4:
+		px.r = 15; 
+		px.g = 15;
+		px.b = 65;
+		break;
+
+	default:
+		px.r = 15;
+		px.g = 15;
+		px.b = 65;
+		break;
+	}
     
     return px;
 }
 
 pixel_t anti_alias(calc_t calc) 
-{	
-	pixel_t color;
-	
-	if (calc.norm_iter < 1.0) {
-		/* simple names for readability */
-		double x = calc.x;
-		double y = calc.y;
-
-		/* https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_(smooth)_coloring */
-		double log_zn = log(x*x	+ y*y) / 2.0;
-		double nu = log(log_zn / log(2.0)) / log(2.0);
-		double iteration = calc.iterations + 1.0 - nu;
-
-		/* find adjacent color values */
-//		unsigned char b1 = (unsigned char)(calc.norm_iter * 255.0);
-//		pixel_t color1 = { 0, 0, b1 };
-	
-//		unsigned char b2 = (unsigned char)(calc.next_iter * 255.0);
-//		pixel_t color2 = { 0, 0, b2 };
-
-		pixel_t color1 = calc_rgb(calc.norm_iter);
-		pixel_t color2 = calc_rgb(calc.next_iter);
-
-		/* use linear interpolation to find final color */
-		double t = fmod(iteration, 1.0);
-		color.r = linear_inter(color1.r, color2.r, t);
-		color.g = linear_inter(color1.g, color2.g, t);
-		color.b = linear_inter(color1.b, color2.b, t);
-	}
-
-	/* color outside of set black */ 
-	else {
-		color.r = color.g = color.b = 0;
-	}
-
-	return color;
-}
-
-unsigned char linear_inter(unsigned char v0, unsigned char v1, double t)
 {
-	/* sanity check on t */
-	assert(-1.0 <= t && t <= 1.0);
+	if (calc.iterations == MAX_ITERATIONS) {
+		pixel_t pixel = { 0, 0, 0 };
+		return pixel;
+	}
+	
+	double A 
+		= -1.0 
+		* log(log(sqrt(pow(calc.x, 2.0) + pow(calc.y, 2.0)))) 
+		/ log(2.0);
 
-	/* https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support */
-	return (unsigned char)((1.0 - t) * v0 + t * v1);
+	double B = (calc.next_iter - calc.prev_iter) / 2;
+	double C = A * B + calc.norm_iter;
+
+	return calc_rgb(C);
 }
+
 
