@@ -108,8 +108,6 @@ void calc_fractal(int width, int height)
 			/* store normalized iterations */
 			calc->norm_iter = norm_iter;
 
-			//printf("norm=%f\n", norm_iter);
-
 			/* store next iteration step */
 			calc->next_iter 
 				= iter + 1 < MAX_ITERATIONS 
@@ -182,7 +180,6 @@ double *calc_map(int *pop_cnt, int pixels)
         cur_val += step;
     }
 
-
     return map;
 }
 
@@ -201,7 +198,10 @@ calc_t calc_pixel(double x0, double y0)
     }
     
 	/* return calculation results */
-	calc_t calc_res = { iteration, x, y };
+	calc_t calc_res;
+	calc_res.iterations = iteration;
+	calc_res.x = x;
+	calc_res.y = y;
     return calc_res;
 }
 
@@ -236,15 +236,12 @@ pixel_t anti_alias(calc_t calc)
 		double x = calc.x;
 		double y = calc.y;
 
+		/* https://en.wikipedia.org/wiki/Mandelbrot_set#Continuous_(smooth)_coloring */
 		double log_zn = log(x*x	+ y*y) / 2.0;
 		double nu = log(log_zn / log(2.0)) / log(2.0);
-	
-		//printf("x=%f, y=%f, log_zn=%f, nu=%f\n", x, y, log_zn, nu);	
+		double iteration = calc.iterations + 1.0 - nu;
 
-		//return color;
-		double iteration = calc.norm_iter + calc.next_iter - nu;
-
-		/* normalize iterations and find adjacent color values */
+		/* find adjacent color values */
 		unsigned char b1 = (unsigned char)(calc.norm_iter * 255.0);
 		pixel_t color1 = { 0, 0, b1 };
 	
@@ -268,7 +265,6 @@ pixel_t anti_alias(calc_t calc)
 
 unsigned char linear_inter(unsigned char v0, unsigned char v1, double t)
 {
-	//printf("t=%f\n", t);
 	/* sanity check on t */
 	assert(-1.0 <= t && t <= 1.0);
 
