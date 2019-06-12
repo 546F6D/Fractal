@@ -1,5 +1,6 @@
 #include "fractal.h"
 #include <assert.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,14 @@ void calc_fractal(int width, int height)
         exit(1);
     }
 
+	/* allocate memory for the escape parameters for each pixel */
+	calc_t *px_calc;
+
+	if (!(px_calc = malloc(sizeof(calc_t) * width * height))) {
+        fprintf(stderr, "Failed to allocate memory for escape parameters\n");
+        exit(1);
+    }
+
     /* calculate iterations for each pixel */
     for (int px = 0; px < width; ++px) {
         for (int py = 0; py < height; ++py) {
@@ -38,10 +47,13 @@ void calc_fractal(int width, int height)
             double x = (double)px / width * 3.0 - 2.0;
             double y = (double)py / height * 2.0 - 1.0;
 
-            /* number of iterations for current pixel */
-            int iterations 
-                = iter_cnt[px * height + py] 
-                = calc_iterations(x, y);
+			/* calculate and store escape parameters */ 
+           	calc_t calc = px_calc[px * height + py] = calc_pixel(x, y);
+            
+			/* store num. of iterations */ 
+			int iterations 
+                = iter_cnt[px * height + py]
+				= calc.iterations;
 
             /* pixels outside the set are not included in the pop. count */
             if (iterations < MAX_ITERATIONS) {
@@ -89,9 +101,26 @@ void calc_fractal(int width, int height)
                 /* use translation map */
                 norm_iter = map[iter];
             }
+		
+			/* get pointer */
+			calc_t *calc = px_calc + (px * height + py);
 
-            /* calculate and store RGB value */
-            px_rgb[px * height + py] = calc_rgb(norm_iter);
+			/* store normalized iterations */
+			calc->norm_iter = norm_iter;
+
+			//printf("norm=%f\n", norm_iter);
+
+			/* store next iteration step */
+			calc->next_iter 
+				= iter + 1 < MAX_ITERATIONS 
+				? map[iter + 1] 
+				: calc->norm_iter;	
+
+			/* calculate RGB value */
+			pixel_t pixel = anti_alias(*calc);
+
+			/* store value */
+            px_rgb[px * height + py] = pixel;
         }
     }
 
@@ -125,6 +154,7 @@ void calc_fractal(int width, int height)
     
     /* free memory */ 
     free(px_rgb);
+	free(px_calc);
     free(pop_cnt);
     free(iter_cnt);
     free(map);
@@ -156,7 +186,7 @@ double *calc_map(int *pop_cnt, int pixels)
     return map;
 }
 
-int calc_iterations(double x0, double y0)
+calc_t calc_pixel(double x0, double y0)
 {
     /* https://en.wikipedia.org/wiki/Mandelbrot_set#Escape_time_algorithm */
     double x = 0.0;
@@ -170,12 +200,16 @@ int calc_iterations(double x0, double y0)
         iteration = iteration + 1;
     }
     
-    /* return number of iterations for pixel to escape mandelbrot set */
-    return iteration;
+	/* return calculation results */
+	calc_t calc_res = { iteration, x, y };
+    return calc_res;
 }
 
 pixel_t calc_rgb(double norm_iter)
 {
+	/* sanity check */
+	assert(0.0 <= norm_iter && norm_iter <= 1.0);
+
     /* struct for holding RGB values */
     pixel_t px = { 0, 0, 0 };
 
@@ -191,5 +225,54 @@ pixel_t calc_rgb(double norm_iter)
     }
     
     return px;
+}
+
+pixel_t anti_alias(calc_t calc) 
+{	
+	pixel_t color;
+	
+	if (calc.norm_iter < 1.0) {
+		/* simple names for readability */
+		double x = calc.x;
+		double y = calc.y;
+
+		double log_zn = log(x*x	+ y*y) / 2.0;
+		double nu = log(log_zn / log(2.0)) / log(2.0);
+	
+		//printf("x=%f, y=%f, log_zn=%f, nu=%f\n", x, y, log_zn, nu);	
+
+		//return color;
+		double iteration = calc.norm_iter + calc.next_iter - nu;
+
+		/* normalize iterations and find adjacent color values */
+		unsigned char b1 = (unsigned char)(calc.norm_iter * 255.0);
+		pixel_t color1 = { 0, 0, b1 };
+	
+		unsigned char b2 = (unsigned char)(calc.next_iter * 255.0);
+		pixel_t color2 = { 0, 0, b2 };
+
+		/* use linear interpolation to find final color */
+		double t = fmod(iteration, 1.0);
+		color.r = linear_inter(color1.r, color2.r, t);
+		color.g = linear_inter(color1.g, color2.g, t);
+		color.b = linear_inter(color1.b, color2.b, t);
+	}
+
+	/* color outside of set black */ 
+	else {
+		color.r = color.g = color.b = 0;
+	}
+
+	return color;
+}
+
+unsigned char linear_inter(unsigned char v0, unsigned char v1, double t)
+{
+	//printf("t=%f\n", t);
+	/* sanity check on t */
+	assert(-1.0 <= t && t <= 1.0);
+
+	/* https://en.wikipedia.org/wiki/Linear_interpolation#Programming_language_support */
+	return (unsigned char)((1.0 - t) * v0 + t * v1);
 }
 

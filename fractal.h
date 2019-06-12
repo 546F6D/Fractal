@@ -11,16 +11,28 @@ typedef struct Pixel {
     };
 } pixel_t;
 
+/* holds escape parameters for a pixel */
+typedef struct Calculation {
+	int iterations;
+	double x, y;
+	double norm_iter, next_iter;
+} calc_t;
+
 /* calculates and writes pixel values to file */
 void calc_fractal(int width, int height);
 
-/* calculates number of iterations for pixel to escape mandelbrot set */ 
-int calc_iterations(double x0, double y0);
+/* calculate escape parameters for a pixel in mandelbrot set */ 
+calc_t calc_pixel(double x0, double y0);
 
 /* calculates map for translating iteration count to a normalized value */ 
 double *calc_map(int *pop_cnt, int pixels);
 
-/* translate normalized value to RGB */
+/* translate normalized iterations to RGB */
 pixel_t calc_rgb(double norm_iter);
 
+/* find RGB and reduce aliasing for pixel */
+pixel_t anti_alias(calc_t calc);
+
+/* linear interpolate two RGB values */
+unsigned char linear_inter(unsigned char v0, unsigned char v1, double t);
 
