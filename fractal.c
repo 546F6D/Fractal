@@ -180,7 +180,7 @@ double *calc_map(int *pop_cnt, int pixels)
         cur_val += step;
     }
 
-    return map;
+	return map;
 }
 
 calc_t calc_pixel(double x0, double y0)
@@ -205,23 +205,40 @@ calc_t calc_pixel(double x0, double y0)
     return calc_res;
 }
 
-pixel_t calc_rgb(double norm_iter)
+pixel_t calc_rgb(double val)
 {
 	/* sanity check */
-	assert(0.0 <= norm_iter && norm_iter <= 1.0);
+	assert(0.0 <= val && val <= 1.0);
 
     /* struct for holding RGB values */
     pixel_t px = { 0, 0, 0 };
 
     /* color pixels with value of 1.0 black */
-    if (norm_iter == 1.0) {
+    if (val == 1.0) {
         px.r = px.g = px.b = 0;
     }
 
     else {
-        px.r = 0;
-        px.g = 0;
-        px.b = (unsigned char)(norm_iter * 255.0);
+		int step = (int)(val * 3.0);
+		switch (step) {
+		case 2:
+			px.r = 0;
+			px.b = 0;
+			px.g = (unsigned char)(128.0 * fmod(val * 3.0, 1.0));
+			break;
+
+		case 1:
+			px.r = 128;
+			px.g = 0;
+			px.b = (unsigned char)(255.0 * fmod(val * 3.0, 1.0));
+			break;
+
+		case 0:
+			px.r = (unsigned char)(128.0 * (1.0 - fmod(val * 3.0, 1.0)));
+			px.g = 0;
+			px.b = (unsigned char)(255.0 * (1.0 - fmod(val * 3.0, 1.0)));
+			break;
+		}
     }
     
     return px;
@@ -242,11 +259,14 @@ pixel_t anti_alias(calc_t calc)
 		double iteration = calc.iterations + 1.0 - nu;
 
 		/* find adjacent color values */
-		unsigned char b1 = (unsigned char)(calc.norm_iter * 255.0);
-		pixel_t color1 = { 0, 0, b1 };
+//		unsigned char b1 = (unsigned char)(calc.norm_iter * 255.0);
+//		pixel_t color1 = { 0, 0, b1 };
 	
-		unsigned char b2 = (unsigned char)(calc.next_iter * 255.0);
-		pixel_t color2 = { 0, 0, b2 };
+//		unsigned char b2 = (unsigned char)(calc.next_iter * 255.0);
+//		pixel_t color2 = { 0, 0, b2 };
+
+		pixel_t color1 = calc_rgb(calc.norm_iter);
+		pixel_t color2 = calc_rgb(calc.next_iter);
 
 		/* use linear interpolation to find final color */
 		double t = fmod(iteration, 1.0);
