@@ -8,7 +8,7 @@
 State state;
 
 State::State()
-	: zoom(1), cx(-0.75), cy(0), render(false)
+	: zoom(1), cx(-0.75), cy(0), render(false), R(0.5), G(0), B(0.25)
 {
 }
 
@@ -91,8 +91,27 @@ void State::update()
 	auto t1 = std::chrono::high_resolution_clock::now();
 	auto dt = 
 		std::chrono::duration_cast<std::chrono::duration<double>>(t1 - t0);
+	double ms = dt.count() * 1000.0;
 	
-	std::cout << "render: " << std::setprecision(2) << std::fixed 
-		<< dt.count() << " s" << std::endl; 
+	std::cout << std::setprecision(0) << std::fixed 
+		<< ms << " ms" << std::endl; 
+}
+
+void State::set_red(double a)
+{
+	R = a;
+	update();
+}
+
+void State::set_green(double a)
+{
+	G = a;
+	update();
+}
+
+void State::set_blue(double a)
+{
+	B = a;
+	update();
 }
 
