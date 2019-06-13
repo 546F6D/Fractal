@@ -5,3 +5,6 @@
 TODO
 __pycache__/
 *.dat
+*.out
+*.mp4
+

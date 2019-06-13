@@ -58,8 +58,8 @@ def color(value):
 	# normalize value
 	normal = value / MAX
 
-	r = 0
-	g = 0
+	r = normal * 255
+	g = normal * 255
 	b = normal * 255
 
 	return Pixel(r, g, b)
