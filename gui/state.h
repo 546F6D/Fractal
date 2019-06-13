@@ -1,11 +1,8 @@
 #pragma once
 
-/* size of screen */
+constexpr int NPROC = 8;
 constexpr int WIDTH = 1400, HEIGHT = 800;
-//constexpr int WIDTH = 300, HEIGHT = 200;
-
 constexpr double RATIO = static_cast<double>(WIDTH) / HEIGHT;
-
 constexpr double PAN_RATE = 0.1, ZOOM_RATE = 1.1;
 
 struct State {
@@ -17,7 +14,10 @@ struct State {
 	void pan_up();
 	void zoom_in();
 	void zoom_out();
-
+	void set_red(double a);
+	void set_green(double a);
+	void set_blue(double a);
+	
 	/* update state variables and redraw screen */
 	void update();
 
@@ -39,9 +39,15 @@ struct State {
 	double sx;
 	double sy;
 
+	/* global color setting */
+	double R;
+	double G;
+	double B;
+
 	/* flag set when rendering */ 
 	bool render;
 };
 
 extern State state;
+
 

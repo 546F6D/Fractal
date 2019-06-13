@@ -25,3 +25,4 @@ rgb_t color(double a);
 /* linear interpolation */
 double linear(double a, double b, double t);
 
+

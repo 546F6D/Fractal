@@ -2,17 +2,20 @@
 #include "state.h"
 #include <GL/glu.h>
 #include <GL/glut.h>
+#include <iostream>
+#include <string>
 
 void init()
 {
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(0, WIDTH, 0, HEIGHT);
-	glPointSize(5);
+	glPointSize(1);
 	state.update();
 }
 
-void idle()
+void close()
 {
+	glutDestroyWindow(glutGetWindow());
 }
 
 void display()
@@ -76,6 +79,77 @@ void special(int key, int x, int y)
 	}
 }
 
+void read_cmd()
+{
+	std::cout << "$ ";
+	std::string cmd;
+	std::cin >> cmd;
+	if (cmd == "set") {
+		std::cin >> cmd;
+		if (cmd == "red") {
+			int hexval;
+			std::cin >> hexval;
+			state.R = hexval / 255.0;
+			state.update();
+		}
+		else if (cmd == "green") {
+			int hexval;
+			std::cin >> hexval;
+			state.G = hexval / 255.0;
+			state.update();
+		}
+		else if (cmd == "blue") {
+			int hexval;
+			std::cin >> hexval;
+			state.B = hexval / 255.0;
+			state.update();
+		}
+		else if (cmd == "zoom") {
+			double val;
+			std::cin >> val;
+			state.zoom = val;
+			state.update();
+		}
+		else if (cmd == "cx") {
+			double val;
+			std::cin >> val;
+			state.cx = val;
+			state.update();
+		}
+		else if (cmd == "cy") {
+			double val;
+			std::cin >> val;
+			state.cy = val;
+			state.update();
+		}
+		else {
+			std::cout << "no such command" << std::endl;
+		}
+	}
+	else if (cmd == "exit") {
+		close();
+	}
+	else {
+		std::cout << "no such command" << std::endl;
+	}
+}	
+
+void keyboard(unsigned char key, int x, int y)
+{
+	switch (key) {
+
+	/* space bar */
+	case '\x20':
+		read_cmd();
+		break;
+
+	/* escape */
+	case '\x1B':
+		close();
+		break;	
+	}		
+}
+
 int main(int argc, char **argv)
 {
     glutInit(&argc, argv);
@@ -84,9 +158,10 @@ int main(int argc, char **argv)
     glutInitWindowPosition(100, 100);
     glutCreateWindow("Loading");
     glutDisplayFunc(display);
-	glutIdleFunc(idle);
+	glutKeyboardFunc(keyboard);
 	glutSpecialFunc(special);
 	init();
 	glutMainLoop();
 }
+
 
