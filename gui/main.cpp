@@ -1,40 +1,29 @@
+#include "pixel.h"
+#include "state.h"
 #include <GL/glu.h>
 #include <GL/glut.h>
 
-/* size of screen and fractal 8 */
-constexpr int WIDTH = 1400,	HEIGHT = 800;
-
-/* normalized RGB values for one pixel */
-struct rgb_t {
-	double R, G, B;
-};
-
-/* pixel buffer */
-rgb_t buf[WIDTH][HEIGHT];
-
-void test_buffer()
+void init()
 {
-	/* set everything to blue */
-	for (int x = 0; x < WIDTH; ++x) {
-		for (int y = 0; y < HEIGHT; ++y) {
-			buf[x][y].R = 0;
-			buf[x][y].G = 0;
-			buf[x][y].B = 0.5;
-		}
-	}
+	glMatrixMode(GL_PROJECTION);
+	gluOrtho2D(0, WIDTH, 0, HEIGHT);
+	glPointSize(5);
+	state.update();
+}
+
+void idle()
+{
 }
 
 void display()
 {
-	/* set state */
+	/* set screen background color */
 	glClearColor(1, 1, 1, 0);
-	glColor3d(1, 1, 1);
-	glMatrixMode(GL_PROJECTION);
-	gluOrtho2D(0, WIDTH, 0, HEIGHT);
-	glPointSize(5);
-    glBegin(GL_POINTS);
-
+	glClear(GL_COLOR_BUFFER_BIT);
+	
 	/* write pixel data to screen */
+    glBegin(GL_POINTS);
+	
 	for (int x = 0; x < WIDTH; ++x) {
 		for (int y = 0; y < HEIGHT; ++y) {
 			/* set color */
@@ -46,20 +35,58 @@ void display()
 		}
 	}
 
-	/* cleanup */
     glEnd();
     glFlush();
+
+	/* present buffer */
+    glutSwapBuffers();
+}
+
+void special(int key, int x, int y)
+{
+	/* ignore additional requests while rendering */
+	if (state.render) {
+		return;
+	}
+
+	switch (key) {
+	case GLUT_KEY_LEFT:
+		state.pan_left();
+		break;
+
+	case GLUT_KEY_RIGHT:				
+		state.pan_right();
+		break;
+
+	case GLUT_KEY_UP:				
+		state.pan_up();
+		break;
+
+	case GLUT_KEY_DOWN:				
+		state.pan_down();
+		break;
+
+	case GLUT_KEY_PAGE_UP:
+		state.zoom_in();
+		break;
+
+	case GLUT_KEY_PAGE_DOWN:
+		state.zoom_out();
+		break;
+	}
 }
 
 int main(int argc, char **argv)
 {
-	test_buffer();
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(WIDTH, HEIGHT);
     glutInitWindowPosition(100, 100);
-    glutCreateWindow("Mandelbrot Fractal");
+    glutCreateWindow("Loading");
     glutDisplayFunc(display);
-    glutMainLoop();
+	glutIdleFunc(idle);
+	glutSpecialFunc(special);
+	init();
+	glutMainLoop();
 }
 
