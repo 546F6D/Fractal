@@ -8,7 +8,7 @@
 State state;
 
 State::State()
-	: zoom(1), cx(0), cy(0), render(false)
+	: zoom(1), cx(-0.75), cy(0), render(false)
 {
 }
 

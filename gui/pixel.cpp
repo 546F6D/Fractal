@@ -63,10 +63,8 @@ rgb_t calc_pixel(double px, double py)
 
 rgb_t color(double a)
 {
-	/* normalize */
-	double b = a / MAX_ITER;
-
-	return { b * 0.14, b * 0.14, b * 0.78 };
+	double b = 1 - (a / MAX_ITER);
+	return { b, b, b };
 }
 
 double linear(double a, double b, double t)
