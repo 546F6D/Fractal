@@ -1,1 +1,1 @@
-g++ *.cpp -o main.out -lglut -lGL -lGLU -fopenmp 
+g++ *.cpp -o mandelbrot -lglut -lGL -lGLU -fopenmp 

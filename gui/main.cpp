@@ -13,11 +13,13 @@ void init()
 	state.update();
 }
 
+/* called when exiting program */
 void close()
 {
 	glutDestroyWindow(glutGetWindow());
 }
 
+/* render function */
 void display()
 {
 	/* set screen background color */
@@ -45,9 +47,10 @@ void display()
     glutSwapBuffers();
 }
 
+/* reads non-ascii characters from keyboard */
 void special(int key, int x, int y)
 {
-	/* ignore additional requests while rendering */
+	/* ignore additional requests while rendering to prevent overload */
 	if (state.render) {
 		return;
 	}
@@ -78,6 +81,16 @@ void special(int key, int x, int y)
 		break;
 	}
 }
+
+/* shell for setting parameters and executing commands such as 
+   - base color
+   - center point
+   - zoom factor
+   - exit program 
+
+   There's no error checking since it's more of a debug utility
+
+   See README.txt for more info */
 
 void read_cmd()
 {
@@ -134,6 +147,7 @@ void read_cmd()
 	}
 }	
 
+/* read regular ascii characters from keyboard */
 void keyboard(unsigned char key, int x, int y)
 {
 	switch (key) {

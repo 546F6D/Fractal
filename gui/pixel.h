@@ -1,9 +1,6 @@
 #pragma once
 #include "state.h"
-
-/* escape time algorithm parameters */
-constexpr double BAIL = 4.0;
-constexpr int MAX_ITER = 1000;
+#include "config.h"
 
 /* normalized RGB values for one pixel */
 struct rgb_t {

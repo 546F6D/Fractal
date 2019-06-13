@@ -1,13 +1,10 @@
 #pragma once
-
-constexpr int NPROC = 8;
-constexpr int WIDTH = 1400, HEIGHT = 800;
-constexpr double RATIO = static_cast<double>(WIDTH) / HEIGHT;
-constexpr double PAN_RATE = 0.1, ZOOM_RATE = 1.1;
+#include "config.h"
 
 struct State {
 	State();
 
+	/* shell/keyboard activated commands */
 	void pan_right();
 	void pan_left();
 	void pan_down();
@@ -25,13 +22,14 @@ struct State {
 	double ax(double px);
 	double ay(double py);
 
+	/* zoom on fractal */
 	double zoom;
 
 	/* center of screen */ 
 	double cx;
 	double cy;
 
-	/* min. x and y */
+	/* min. x and y coordinates */
 	double mx;
 	double my;
 
@@ -48,6 +46,7 @@ struct State {
 	bool render;
 };
 
+/* shared global state variable */
 extern State state;
 
 

@@ -6,6 +6,7 @@ rgb_t buf[WIDTH][HEIGHT];
 
 void calc_pixels()
 {
+	/* renders 2-3 times faster on my laptop with openmp */
 	#pragma omp parallel for
 	for (int px = 0; px < WIDTH; ++px) {
 		for (int py = 0; py < HEIGHT; ++py) {
