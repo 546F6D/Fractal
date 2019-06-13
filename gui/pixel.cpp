@@ -6,6 +6,8 @@ rgb_t buf[WIDTH][HEIGHT];
 
 void calc_pixels()
 {
+	/* calculate new RGB values for each pixel */
+
 	#pragma omp parallel for
 	for (int px = 0; px < WIDTH; ++px) {
 		for (int py = 0; py < HEIGHT; ++py) {
@@ -62,7 +64,7 @@ rgb_t calc_pixel(double px, double py)
 rgb_t color(double a)
 {
 	double b = 1 - (a / MAX_ITER);
-	return { b * state.R, b * state.G, b * state.B };
+	return { b, b, b };
 }
 
 double linear(double a, double b, double t)
