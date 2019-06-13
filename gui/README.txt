@@ -4,6 +4,9 @@ Usage
 	- The screen size (and a few other variables) can be changed in config.h 
     - It takes a couple seconds to render after each command. During that time
       additional commands are ignored to prevent overloading.
+	- During rendering, the window title will change to "Busy"
+	  When the window title reads "Ready", another command can be issued.
+	- Render time for each frame is logged to the console.
 
 Window Controls
 	Pan Up		Up Arrow Key
@@ -18,6 +21,7 @@ Window Controls
 
 Shell Commands
 	- Activate the shell by pressing the space bar while focused on the window.
+      You might need to switch focus to the console before typing.
     - Only one command is run each time the shell is activated.
     - There's no error checking.
 
@@ -36,5 +40,4 @@ Shell Commands
 
 Build Requirements
 	g++ with GLUT and OpenMP libraries
-
 
