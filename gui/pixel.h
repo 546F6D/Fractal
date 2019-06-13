@@ -2,7 +2,7 @@
 #include "state.h"
 
 /* escape time algorithm parameters */
-constexpr double THRESHOLD = 4.0;
+constexpr double BAIL = 4.0;
 constexpr int MAX_ITER = 1000;
 
 /* normalized RGB values for one pixel */

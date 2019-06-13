@@ -1,8 +1,8 @@
 #pragma once
 
 /* size of screen */
-//constexpr int WIDTH = 1400, HEIGHT = 800;
-constexpr int WIDTH = 300, HEIGHT = 200;
+constexpr int WIDTH = 1400, HEIGHT = 800;
+//constexpr int WIDTH = 300, HEIGHT = 200;
 
 constexpr double RATIO = static_cast<double>(WIDTH) / HEIGHT;
 

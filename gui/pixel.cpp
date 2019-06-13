@@ -1,11 +1,14 @@
 #include "pixel.h"
 #include <cmath>
+#include <omp.h>
 
 rgb_t buf[WIDTH][HEIGHT];
 
 void calc_pixels()
 {
 	/* calculate new RGB values for each pixel */
+
+	#pragma omp parallel for
 	for (int px = 0; px < WIDTH; ++px) {
 		for (int py = 0; py < HEIGHT; ++py) {
 			buf[px][py] = calc_pixel(px, py);
@@ -24,7 +27,7 @@ rgb_t calc_pixel(double px, double py)
 	int i = 0;	
 
 	/* escape time algorithm */
-	while (pow(x, 2) + pow(y, 2) < THRESHOLD && i < MAX_ITER) {
+	while (pow(x, 2) + pow(y, 2) <= BAIL && i < MAX_ITER) {
 		double xtemp = pow(x, 2) - pow(y, 2) + ax;
 		y = 2*x*y + ay;
 		x = xtemp;
@@ -33,7 +36,7 @@ rgb_t calc_pixel(double px, double py)
 
 	/* color inside pixels black */
 	if (i == MAX_ITER) {
-		return { 0, 0, 0 };
+		return color(MAX_ITER);
 	}
 
 	/* no interpolation for last bucket */
@@ -60,7 +63,10 @@ rgb_t calc_pixel(double px, double py)
 
 rgb_t color(double a)
 {
-	return { a * 35, a * 35, a * 200 };
+	/* normalize */
+	double b = a / MAX_ITER;
+
+	return { b * 0.14, b * 0.14, b * 0.78 };
 }
 
 double linear(double a, double b, double t)

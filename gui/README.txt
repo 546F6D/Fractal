@@ -2,8 +2,10 @@ Usage
 	./main.out
 
 Controls
-	The arrow keys will move the image up/down/left/right
-		
+	Pan Up		Up Arrow Key
+	Pan Down	Down Arrow Key
+	Pan Left	Left Arrow Key
+	Pan Right	Right Arrow Key		
 	Zoom In		Page Up
 	Zoom Out	Page Down
 	
